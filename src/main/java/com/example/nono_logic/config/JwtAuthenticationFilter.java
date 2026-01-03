@@ -12,6 +12,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import java.util.List;
+
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -24,8 +27,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getRequestURI().startsWith("/auth");
+        String path = request.getRequestURI();
+        System.out.println("JWT FILTER PATH = " + path);
+        return path.startsWith("/auth")
+                || path.startsWith("/api/puzzles/dev");
     }
+
+
 
     @Override
     protected void doFilterInternal(
@@ -44,8 +52,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     new UsernamePasswordAuthenticationToken(
                             email,
                             null,
-                            Collections.emptyList()
+                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
                     );
+
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
